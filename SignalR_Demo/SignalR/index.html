@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>SignalR Simple Chat</title>
+    <style type="text/css">
+        .container {
+            background-color: #99CCFF;
+            border: thick solid #808080;
+            padding: 20px;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>
+           <label>欢迎您:</label> <strong id="yourName"></strong>
+        </div>
+        <input type="text" id="message" />
+        <input type="button" id="sendmessage" value="Send" />
+        <input type="hidden" id="displayname" />
+        <ul id="discussion"></ul>
+    </div>
+    <!--Script references. -->
+    <!--Reference the jQuery library. -->
+    <script src="jquery-3.3.1.min.js"></script>
+    <!--Reference the SignalR library. -->
+    <script src="jquery.signalR-2.4.0.min.js"></script>
+    <!--这个在文档目录中是没有的,由Signalr自动生成. -->
+    <script src="signalr/hubs"></script>
+    <!--Add script to update the page and send messages.-->
+    <script type="text/javascript">
+        $(function () {
+            // 获取连接的对象,此处的 $.connection.chat;中的chat正是ChatHub类中的别名
+            var chat = $.connection.chat;
+            // 给连接对象绑定服务端中生成的方法broadcastMessage该方法与ChatHub类中的方法一致
+            chat.client.broadcastMessage = function (name, message) {
+                // 显示名字和消息
+                var encodedName = $('<div />').text(name).html();
+                var encodedMsg = $('<div />').text(message).html();
+                // Add the message to the page.
+                $('#discussion').append('<li><strong>' + encodedName
+                    + '</strong>:&nbsp;&nbsp;' + encodedMsg + '</li>');
+            };
+
+            chat.client.getDateTime = function (time) {
+                console.log(time);
+            }
+            // 获取名字
+            $('#displayname').val(prompt('Enter your name:', ''));
+            $("#yourName").html($('#displayname').val());
+            // 消息框获得焦点
+            $('#message').focus();
+            // 开始集线器的连接处理
+            $.connection.hub.start().done(function () {
+                chat.server.get();
+                //发送消息
+                $('#sendmessage').click(function () {
+
+                    
+                    //向服务端发送消息
+                    chat.server.send($('#displayname').val(), $('#message').val());
+                    // Clear text box and reset focus for next comment.
+                    $('#message').val('').focus();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

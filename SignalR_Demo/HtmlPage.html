@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <script src="Scripts/jquery-1.10.2.min.js"></script>
+    <script src="Scripts/jquery.signalR-2.4.0.min.js"></script>
+    <script>
+        $(function () {
+            //不是用代理进行与服务器通信
+            var connection = $.hubConnection("/test");//根据设置好的映射路径创建连接
+            var proxy = connection.createHubProxy("test");//根据连接创建我们需要访问的hub代理。test这里是之前创建好的Testhub类
+            connection.start(function () {
+                //调用服务端方法
+                proxy.invoke("hello");//调用TestHub中hello方法
+            });
+            //为客户端创建方法,这里的sayHi方法提供服务端调用
+            proxy.on("sayHi", function (msg) {
+                alert(msg);
+            });
+
+        });
+    </script>
+    <meta charset="utf-8" />
+</head>
+<body>
+
+</body>
+</html>
